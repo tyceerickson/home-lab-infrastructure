@@ -1,0 +1,105 @@
+# Device Inventory
+
+## Overview
+
+This document catalogs all physical and virtual devices in the lab environment. Devices are grouped by function: external infrastructure, core network, physical servers, virtual machines, and wireless/access layer.
+
+---
+
+## External Infrastructure
+
+| Device | Model | IP | Role | VLAN |
+|--------|-------|----|------|------|
+| Eero Modem/Router | Amazon Eero (model TBD) | 192.168.4.1 | ISP gateway / WAN uplink | — (upstream) |
+
+---
+
+## Core Network Infrastructure
+
+| Device | Model | IP | Role | VLAN |
+|--------|-------|----|------|------|
+| OPNsense Firewall | OPNsense (version TBD) | 192.168.10.1 / .20.1 / .30.1 / .40.1 / .99.1 | Gateway, inter-VLAN routing, stateful firewall, primary policy enforcement | 10 / 20 / 30 / 40 / 99 |
+| Netgear Managed Switch | Netgear (model TBD) | 192.168.10.2 | Core distribution switch — trunks VLANs 10/20/30/40 | Trunk |
+| Cisco Catalyst 2960 | Cisco Catalyst 2960 Plus SI PoE-8 | 192.168.10.5 | Layer 2 PoE switch — enterprise segment distribution | Trunk (10/40) |
+
+---
+
+## Physical Servers / Hypervisors
+
+| Device | Hardware | IP | OS / Platform | Role | VLAN |
+|--------|----------|----|---------------|------|------|
+| Mac Server | Apple Mac (model TBD) | 192.168.10.3 | macOS + UTM hypervisor | Primary hypervisor — hosts all VMs. Three physical NICs connect to separate switch ports for hardware-enforced VLAN isolation: en6 → VLAN 10, en8 → VLAN 20, en9 → VLAN 30 | 10 / 20 / 30 |
+
+---
+
+## Virtual Machines (Hosted on Mac Server via UTM)
+
+| VM | IP | OS | Role | VLAN | Host NIC |
+|----|----|----|------|------|----------|
+| Ubuntu Server | 192.168.10.4 | Ubuntu Server (version TBD) | Lab services, SSH access, future SIEM deployment | 10 | Mac en6 (shared with host) |
+| Kali Linux | 192.168.20.20 | Kali Linux (version TBD) | Attacker — offensive tooling, exploitation, wireless attacks | 20 | Mac en8 |
+| Windows 11 | 192.168.30.10 | Windows 11 (version TBD) | Victim endpoint — phishing, malware, post-exploitation target | 30 | Mac en9 |
+| Metasploitable | 192.168.30.20 | Metasploitable 2 / 3 (TBD) | Intentionally vulnerable services target | 30 | Mac en9 |
+
+> **Note:** The Ubuntu Server VM shares the Mac's en6 NIC with the Mac host itself. Both the macOS host (192.168.10.3) and the Ubuntu Server VM (192.168.10.4) reach VLAN 10 through Netgear Port 5. This is a shared physical uplink — the Mac's hypervisor bridges both to the same VLAN 10 access port.
+
+---
+
+## Physical Victim Systems
+
+| Device | Hardware | IP | OS | Role | VLAN | Connectivity |
+|--------|----------|----|----|------|------|--------------|
+| iMac Ubuntu Server | Apple iMac (repurposed, model TBD) | 192.168.30.x (DHCP via TP-Link) | Ubuntu Server (version TBD) | Vulnerable web server — hosts intentionally vulnerable web application | 30 | Wireless — connects via TP-Link AP (192.168.30.2) |
+
+---
+
+## Wireless / Access Layer
+
+| Device | Model | IP | Role | VLAN | Notes |
+|--------|-------|----|------|------|-------|
+| Cisco AP | Cisco Access Point (model TBD) | 192.168.40.2 | Enterprise wireless simulation | 40 | Powered via PoE — Cisco 2960 Port 1 |
+| TP-Link AP | TP-Link (model TBD) | 192.168.30.2 | Intentionally vulnerable wireless target | 30 | Configured in Layer 2 bridge / AP mode. Weak passphrase intentional. DHCP server for VLAN 30 wireless clients. |
+
+---
+
+## Workstation
+
+| Device | Model | IP | OS | Role |
+|--------|-------|----|----|------|
+| Personal Workstation | Alienware m16 R2 | DHCP (varies) | Windows 11 | Primary management workstation — connects to VLAN 10 for lab administration |
+
+**Specs:** Intel Core Ultra 9 185H · 64GB RAM · NVIDIA RTX 4070 · 1.86TB storage
+
+---
+
+## Device Count Summary
+
+| Category | Count |
+|----------|-------|
+| Physical network devices | 3 (firewall, 2 switches) |
+| Physical servers | 2 (Mac Server, Ubuntu Server / iMac) |
+| Virtual machines | 3 (Kali, Windows 11, Metasploitable) |
+| Physical victim systems | 1 (iMac Ubuntu Server) |
+| Access points | 2 (Cisco AP, TP-Link AP) |
+| Workstations | 1 (Alienware) |
+| **Total** | **12** |
+
+---
+
+## Information Gaps (To Be Updated)
+
+The following details were not available at time of documentation and should be filled in:
+
+| Device | Missing Information |
+|--------|-------------------|
+| Eero | Exact model number |
+| OPNsense | OPNsense version number |
+| Netgear Switch | Exact model number |
+| Mac Server | Exact Mac model (Mac Mini? Mac Studio?) and macOS version |
+| Ubuntu Server | Ubuntu Server version |
+| Kali Linux | Kali version |
+| Windows 11 | Windows 11 build version |
+| Metasploitable | Version (Metasploitable 2 or 3?) |
+| iMac Ubuntu Server | Ubuntu Server version, iMac model |
+| Cisco AP | Exact AP model number |
+| TP-Link AP | Exact AP model number |
