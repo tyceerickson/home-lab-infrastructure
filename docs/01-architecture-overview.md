@@ -81,7 +81,7 @@ The lab uses a **deny-by-default, allow-by-exception** firewall policy. Each VLA
 | Netgear Managed Switch | Core distribution switch | 192.168.10.2 | Trunk |
 | Cisco Catalyst 2960 | PoE switch, enterprise segment | 192.168.10.5 | Trunk (10/40) |
 | Mac Server (UTM) | Hypervisor — hosts all VMs | 192.168.10.3 | 10/20/30 (multi-NIC) |
-| Ubuntu Server | Services, SSH, future SIEM | 192.168.10.4 | 10 |
+| iMac Ubuntu Server | Physical victim machine — vulnerable web server, connects wirelessly via TP-Link AP | 192.168.30.x | 30 |
 | Cisco AP | Enterprise wireless (VLAN 40) | 192.168.40.2 | 40 |
 | TP-Link AP | Intentionally vulnerable wireless target | 192.168.30.2 | 30 |
 
@@ -89,12 +89,12 @@ The lab uses a **deny-by-default, allow-by-exception** firewall policy. Each VLA
 
 ## Virtual Infrastructure (UTM on Mac Server)
 
-| VM | Role | IP | VLAN |
-|----|------|----|------|
-| Kali Linux | Attacker — offensive tooling | 192.168.20.20 | 20 |
-| Windows 11 | Victim — endpoint target | 192.168.30.10 | 30 |
-| Metasploitable | Vulnerable service target | 192.168.30.20 | 30 |
-| iMac Ubuntu Server | Vulnerable web server (DHCP) | 192.168.30.x | 30 |
+| VM | Role | IP | VLAN | Host NIC |
+|----|------|----|------|----------|
+| Ubuntu Server | Services, SSH, future SIEM | 192.168.10.4 | 10 | en6 (shared with host) |
+| Kali Linux | Attacker — offensive tooling | 192.168.20.20 | 20 | en8 |
+| Windows 11 | Victim — endpoint target | 192.168.30.10 | 30 | en9 |
+| Metasploitable | Vulnerable service target | 192.168.30.20 | 30 | en9 |
 
 ---
 
