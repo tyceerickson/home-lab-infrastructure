@@ -72,6 +72,28 @@ This document catalogs all physical and virtual devices in the lab environment. 
 
 ---
 
+## External Storage
+
+| Device | Model | Capacity | Role | Connected To |
+|--------|-------|----------|------|--------------|
+| External Hard Drive | WD Discovery | 2TB | Offline backup storage — OPNsense config, VM exports, encrypted credentials archive | Alienware (USB, connected as needed) |
+
+**Backup contents (target state):**
+
+| Item | Path on Drive | Status |
+|------|---------------|--------|
+| OPNsense XML backup | `backups/opnsense/` | ⚠️ Not yet copied |
+| Encrypted credentials archive (7-Zip) | `backups/credentials/` | ⚠️ Not yet copied |
+| Kali Linux VM export | `backups/vms/` | ⚠️ Not yet exported |
+| Windows 11 VM export | `backups/vms/` | ⚠️ Not yet exported |
+| Metasploitable 2 VM export | `backups/vms/` | ⚠️ Not yet exported |
+| Ubuntu Server VM export | `backups/vms/` | ⚠️ Not yet exported |
+| Windows machine backup | `windows-backup/` | ✅ Exists |
+
+See [08 — Recovery Procedures](08-recovery-procedures.md) for full backup and restore procedures.
+
+---
+
 ## Device Count Summary
 
 | Category | Count |
@@ -103,3 +125,4 @@ The following details were not available at time of documentation and should be 
 | iMac Ubuntu Server | Ubuntu Server version, iMac model |
 | Cisco AP | Exact AP model number |
 | TP-Link AP | Exact AP model number |
+
