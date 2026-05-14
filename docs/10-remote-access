@@ -1,0 +1,160 @@
+# Remote Access
+
+## Overview
+
+This document describes how the lab is accessed remotely — from outside the home network — and how internal management access is structured between lab machines.
+
+All remote access uses Tailscale as the secure overlay network. No ports are exposed directly to the internet.
+
+---
+
+## Remote Access Architecture
+
+```
+Internet (Alienware / any device)
+        │
+        │  Tailscale encrypted tunnel
+        ▼
+Ubuntu Server VM (Tailscale IP: 100.82.166.75)
+        │
+        │  ssh opnsense  (key-only, via 192.168.10.4 → 192.168.10.1)
+        ▼
+OPNsense Firewall (192.168.10.1)
+        │
+        │  lab network access (all VLANs via enp0s2 static routes)
+        ▼
+All lab hosts (VLAN 10/20/30/40)
+```
+
+---
+
+## Tailscale Network
+
+| Device | Tailscale IP | OS | Status |
+| --- | --- | --- | --- |
+| Ubuntu Server (homeserver) | 100.82.166.75 | Ubuntu 24.04 LTS | Active — primary SSH entry point |
+| Alienware (tyces-alienware) | 100.72.171.104 | Windows 11 | Active |
+| Kali Linux (kali) | 100.76.222.121 | Kali Linux | Active |
+| Mac Server (tyces-mac) | 100.92.213.37 | macOS | Active |
+| iPhone (tyces-iphone) | 100.64.87.73 | iOS | Offline |
+
+All devices are on the same Tailscale tailnet (`tyceerickson@`). Tailscale handles NAT traversal and encryption — no port forwarding required on the home router.
+
+---
+
+## SSH Access Patterns
+
+### From Alienware (or any device) → Ubuntu Server
+
+```bash
+ssh homeserver
+# resolves to Tailscale IP 100.82.166.75
+# auth: SSH key only (no password)
+```
+
+### From Ubuntu Server → OPNsense Firewall
+
+```bash
+ssh opnsense
+# alias defined in ~/.ssh/config:
+#   HostName 192.168.10.1
+#   User root
+#   BindAddress 192.168.10.4
+#   IdentityFile ~/.ssh/opnsense_key
+# auth: SSH key only (ed25519, no password)
+```
+
+### From Ubuntu Server → Lab VMs
+
+```bash
+ssh user@192.168.30.20   # Metasploitable
+ssh user@192.168.20.20   # Kali Linux
+ssh user@192.168.30.10   # Windows 11 (if SSH enabled)
+```
+
+All lab VM traffic routes automatically via enp0s2 → OPNsense → destination VLAN.
+
+---
+
+## SSH Key Inventory
+
+| Key File | Type | Purpose | Stored On |
+| --- | --- | --- | --- |
+| `~/.ssh/opnsense_key` | ed25519 private | Ubuntu Server → OPNsense auth | Ubuntu Server |
+| `~/.ssh/opnsense_key.pub` | ed25519 public | Installed in OPNsense `/conf/config.xml` | OPNsense |
+
+---
+
+## Ubuntu Server Network Configuration
+
+The Ubuntu Server VM uses a dual-NIC setup managed by netplan (`/etc/netplan/00-installer-config.yaml`):
+
+```yaml
+network:
+  version: 2
+  ethernets:
+    enp0s1:
+      dhcp4: true
+      dhcp4-overrides:
+        route-metric: 100        # default route — internet and Tailscale
+    enp0s2:
+      dhcp4: false
+      addresses:
+        - 192.168.10.4/24        # static lab IP
+      routes:
+        - to: 192.168.10.0/24
+          via: 192.168.10.1
+          metric: 50
+        - to: 192.168.20.0/24
+          via: 192.168.10.1
+          metric: 50
+        - to: 192.168.30.0/24
+          via: 192.168.10.1
+          metric: 50
+        - to: 192.168.40.0/24
+          via: 192.168.10.1
+          metric: 50
+      nameservers:
+        addresses: [1.1.1.1, 8.8.8.8]
+```
+
+**Key principle:** `enp0s1` holds the default route (internet/Tailscale via UTM NAT `192.168.64.1`). `enp0s2` holds explicit static routes for all lab VLANs only. The two paths never interfere — Tailscale remote access is never disrupted by lab routing changes.
+
+---
+
+## OPNsense SSH Configuration
+
+| Setting | Value |
+| --- | --- |
+| SSH enabled | Yes |
+| Root login | Permitted |
+| Password login | Disabled |
+| Key-only auth | Yes (ed25519) |
+| Listen interfaces | All |
+| SSH port | 22 |
+| Authorized key location | `/conf/config.xml` → `<authorizedkeys>` field |
+
+> **Important:** OPNsense manages SSH authorized keys through its XML config, not
+> through `/root/.ssh/authorized_keys` directly. Keys written to the filesystem are
+> wiped on config save. Always add keys via `/conf/config.xml`.
+
+---
+
+## Firewall Rules Supporting Remote Access
+
+The following rule in `vlan_10_management` enables Ubuntu Server → OPNsense SSH:
+
+| Rule | Source | Destination | Port | Purpose |
+| --- | --- | --- | --- | --- |
+| Allow SSH to firewall | 192.168.10.4 | This Firewall | 22 (TCP) | Ubuntu Server → OPNsense SSH |
+
+---
+
+## VNC / RDP Access
+
+| Method | Target | Notes |
+| --- | --- | --- |
+| VNC | Mac Server (tyces-mac via Tailscale) | Used for UTM VM console access and OPNsense GUI |
+| RDP | Kali Linux VM (192.168.20.20) | Direct RDP for GUI-based attack tools |
+
+VNC and RDP sessions are initiated from the Alienware over Tailscale. No direct internet exposure.
