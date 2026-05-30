@@ -12,7 +12,7 @@ The lab serves as the practical foundation for coursework and independent resear
 
 | # | Objective | Implementation |
 |---|-----------|----------------|
-| 1 | Enforce strict network segmentation | Four-VLAN architecture with firewall-enforced inter-VLAN policy |
+| 1 | Enforce strict network segmentation | Five-VLAN architecture (four production zones plus an out-of-band emergency segment) architecture with firewall-enforced inter-VLAN policy |
 | 2 | Simulate realistic attacker → victim interaction | Dedicated attacker VLAN (20) with controlled access to victim VLAN (30) |
 | 3 | Prevent lateral movement to management infrastructure | Explicit deny rules blocking all VLANs from reaching VLAN 10 |
 | 4 | Provide isolated enterprise network simulation | VLAN 40 with Cisco AP and enterprise wireless configuration |
