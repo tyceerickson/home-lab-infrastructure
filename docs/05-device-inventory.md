@@ -39,7 +39,7 @@ This document catalogs all physical and virtual devices in the lab environment. 
 | Ubuntu Server | 192.168.10.4 | Ubuntu Server (version TBD) | Lab services, SSH access, future SIEM deployment | 10 | Mac en6 (shared with host) |
 | Kali Linux | 192.168.20.20 | Kali Linux (version TBD) | Attacker — offensive tooling, exploitation, wireless attacks | 20 | Mac en8 |
 | Windows 11 | 192.168.30.10 | Windows 11 (version TBD) | Victim endpoint — phishing, malware, post-exploitation target | 30 | Mac en9 |
-| Metasploitable | 192.168.30.20 | Metasploitable 2 / 3 (TBD) | Intentionally vulnerable services target | 30 | Mac en9 |
+| Metasploitable | 192.168.30.20 | Metasploitable 2 | Intentionally vulnerable services target | 30 | Mac en9 |
 
 > **Note:** The Ubuntu Server VM shares the Mac's en6 NIC with the Mac host itself. Both the macOS host (192.168.10.3) and the Ubuntu Server VM (192.168.10.4) reach VLAN 10 through Netgear Port 5. This is a shared physical uplink — the Mac's hypervisor bridges both to the same VLAN 10 access port.
 
