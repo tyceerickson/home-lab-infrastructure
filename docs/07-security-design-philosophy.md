@@ -31,14 +31,14 @@ This also models how mature enterprise networks are architected — centralized 
 
 ---
 
-## Decision 2: Four-Zone VLAN Segmentation Model
+## Decision 2: Multi-Zone VLAN Segmentation Model
 
-**Decision:** The network is divided into four distinct trust zones — Management (10), Attackers (20), Victims (30), and Enterprise (40) — rather than a flat network or a simple two-zone split.
+**Decision:** The network is divided into five distinct trust zones — Management (10), Attackers (20), Victims (30), and Enterprise (40), plus an out-of-band emergency segment — rather than a flat network or a simple two-zone split.
 
 **Rationale:**
 A flat network would allow any device to reach any other device, making controlled attack simulation impossible and management infrastructure permanently exposed. A simple two-zone split (lab vs. management) would conflate the attacker and victim roles, preventing meaningful traffic analysis — you could not distinguish attack-originated traffic from victim-originated traffic at the firewall.
 
-The four-zone model reflects how real enterprise networks are segmented: by trust level and function, not just by "internal vs. external." Each zone has a documented trust level, a defined set of permitted flows, and a rationale for why those flows exist. This is the foundation of a zero-trust-aligned architecture.
+The five-zone model reflects how real enterprise networks are segmented: by trust level and function, not just by "internal vs. external." Each zone has a documented trust level, a defined set of permitted flows, and a rationale for why those flows exist. This is the foundation of a zero-trust-aligned architecture.
 
 **Why a dedicated Attacker VLAN matters:**
 Placing Kali Linux in its own VLAN (rather than on the same segment as victims) means every attack must traverse the firewall. This produces logs, enables detection exercises, and enforces the principle that even authorized offensive activity is monitored and controlled.
